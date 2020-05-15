@@ -12,6 +12,6 @@ Usage:
 
   - Join
 
-    ```part -f filename.ext -m join```
+    ```parts -f filename.ext -m join```
 
     Joins all file parts into filename.ext where there exists files with the pattern filename.ext.0 ... filename.ext.N
