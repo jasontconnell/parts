@@ -12,7 +12,7 @@ import (
 
 func main() {
 	start := time.Now()
-	size := flag.Int("s", 10_000_000, "size of the partitions")
+	size := flag.Int64("s", 10_000_000, "size of the partitions")
 	file := flag.String("f", "", "the file")
 	mode := flag.String("m", "partition", "mode of operation (join partitions or partition a file)")
 	flag.Parse()
@@ -27,11 +27,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	dir, wderr := os.Getwd()
+	if wderr != nil {
+		log.Fatalf("getting current directory %s", dir)
+	}
+
 	var err error
 	if m == data.Partition {
-		err = process.Partition(*file, *size)
+		err = process.Partition(dir, *file, *size)
 	} else {
-		err = process.Join(*file)
+		err = process.Join(dir, *file)
 	}
 
 	if err != nil {
