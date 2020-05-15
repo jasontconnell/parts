@@ -68,7 +68,10 @@ func doJoin(dir, filename string, parts []data.Part) error {
 	defer outfile.Close()
 
 	var pos int64
-	for _, p := range parts {
+	for i, p := range parts {
+		if i != p.Index {
+			return errors.Errorf("missing part %d - %s", i, fullPath)
+		}
 		partfile := filepath.Join(dir, p.Filename)
 		b, err := ioutil.ReadFile(partfile)
 
