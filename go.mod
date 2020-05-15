@@ -1,4 +1,4 @@
-module github.com/jasontconnell/partfile
+module github.com/jasontconnell/parts
 
 go 1.14
 

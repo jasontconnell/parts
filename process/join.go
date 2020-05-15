@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jasontconnell/partfile/data"
+	"github.com/jasontconnell/parts/data"
 	"github.com/pkg/errors"
 )
 

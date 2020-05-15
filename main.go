@@ -6,8 +6,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/jasontconnell/partfile/data"
-	"github.com/jasontconnell/partfile/process"
+	"github.com/jasontconnell/parts/data"
+	"github.com/jasontconnell/parts/process"
 )
 
 func main() {
