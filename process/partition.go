@@ -6,8 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-
-	"github.com/pkg/errors"
 )
 
 func Partition(dir, filename string, size int64) error {
@@ -15,7 +13,7 @@ func Partition(dir, filename string, size int64) error {
 	stat, err := os.Stat(fullPath)
 
 	if err != nil {
-		return errors.Wrapf(err, "couldn't stat file for partition %s", filename)
+		return fmt.Errorf("couldn't stat file for partition %s. %w", filename, err)
 	}
 
 	chunks := stat.Size()/int64(size) + 1
@@ -30,7 +28,7 @@ func Partition(dir, filename string, size int64) error {
 func doPartition(dir, filename, outfmt string, chunks, size int64) error {
 	f, err := os.Open(filename)
 	if err != nil {
-		return errors.Wrapf(err, "opening file to partition %s", filename)
+		return fmt.Errorf("opening file to partition %s. %w", filename, err)
 	}
 	defer f.Close()
 
@@ -47,12 +45,12 @@ func doPartition(dir, filename, outfmt string, chunks, size int64) error {
 
 		out, err := os.OpenFile(outfile, os.O_CREATE|os.O_RDWR, os.ModePerm)
 		if err != nil {
-			return errors.Wrapf(err, "opening partiion %d, %s", i, outfile)
+			return fmt.Errorf("opening partiion %d, %s. %w", i, outfile, err)
 		}
 
 		_, err = out.Write(buf[:n])
 		if err != nil {
-			return errors.Wrapf(err, "writing partition file %d, %s", i, outfile)
+			return fmt.Errorf("writing partition file %d, %s. %w", i, outfile, err)
 		}
 
 		i++

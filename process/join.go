@@ -1,7 +1,7 @@
 package process
 
 import (
-	"io/ioutil"
+	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/jasontconnell/parts/data"
-	"github.com/pkg/errors"
 )
 
 func Join(dir, filename string) error {
@@ -27,7 +26,7 @@ func Join(dir, filename string) error {
 			ext := strings.TrimPrefix(filepath.Ext(name), ".")
 			pnum, err := strconv.Atoi(ext)
 			if err != nil {
-				return errors.Wrapf(err, "couldn't parse partition number from %s", name)
+				return fmt.Errorf("couldn't parse partition number from %s. %w", name, err)
 			}
 
 			partition := data.Part{Filename: name, Index: pnum}
@@ -38,11 +37,11 @@ func Join(dir, filename string) error {
 	})
 
 	if len(partitions) == 0 {
-		return errors.New("no parition files found")
+		return fmt.Errorf("no parition files found")
 	}
 
 	if err != nil {
-		return errors.Wrapf(err, "walking directory %s", dir)
+		return fmt.Errorf("walking directory %s. %w", dir, err)
 	}
 
 	sort.Slice(partitions, func(i, j int) bool {
@@ -51,7 +50,7 @@ func Join(dir, filename string) error {
 
 	err = doJoin(dir, filename, partitions)
 	if err != nil {
-		return errors.Wrap(err, "joining files")
+		return fmt.Errorf("joining files. %w", err)
 	}
 
 	// maybe delete files after
@@ -63,27 +62,27 @@ func doJoin(dir, filename string, parts []data.Part) error {
 	fullPath := filepath.Join(dir, filename)
 	outfile, err := os.OpenFile(fullPath, os.O_CREATE|os.O_RDWR, os.ModePerm)
 	if err != nil {
-		return errors.Wrapf(err, "opening file to join to - %s", fullPath)
+		return fmt.Errorf("opening file to join to - %s. %w", fullPath, err)
 	}
 	defer outfile.Close()
 
 	var pos int64
 	for i, p := range parts {
 		if i != p.Index {
-			return errors.Errorf("missing part %d - %s", i, fullPath)
+			return fmt.Errorf("missing part %d - %s", i, fullPath)
 		}
 		partfile := filepath.Join(dir, p.Filename)
-		b, err := ioutil.ReadFile(partfile)
+		b, err := os.ReadFile(partfile)
 
 		if err != nil {
-			return errors.Wrapf(err, "opening part file %s %d", partfile, p.Index)
+			return fmt.Errorf("opening part file %s %d. %w", partfile, p.Index, err)
 		}
 
 		_, err = outfile.WriteAt(b, pos)
 		pos += int64(len(b))
 
 		if err != nil {
-			return errors.Wrapf(err, "writing file %s %d", fullPath, p.Index)
+			return fmt.Errorf("writing file %s %d. %w", fullPath, p.Index, err)
 		}
 	}
 	return nil
